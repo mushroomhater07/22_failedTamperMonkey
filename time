@@ -1,0 +1,134 @@
+// ==UserScript==
+// @name         New Userscript
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        https://app.uplearn.co.uk/learn/*
+// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @grant        none
+// ==/UserScript==
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function startConnect() {
+    while (true) {
+        $(".confidence").click()
+        $(".submitQuizBtn").click()
+        $(".playbtn").click()
+        $(".beginButton").click()
+        var play = document.querySelector("div.w-vulcan-overlays--center.w-css-reset > div > div:nth-child(1) > div > button");
+        if(play != null) play.click();
+        sleep(200)
+    }
+}
+startConnect();
+
+
+#page-top > div.container > div:nth-child(2) > div > div:nth-child(6) > div > div > div.panel-body.text-center > button
+#page-top > div.container > div:nth-child(2) > div > div:nth-child(5) > div > div > div.panel-body.text-center > div.btn-group > button.btn.btn-default.smoothasfk.nextDef.current
+<button type="button" class="btn btn-default smoothasfk nextDef current">Next</button>
+<button type="button" class="btn btn-primary btn-lg beginButton">Begin?</button>
+<button type="button" class="btn btn-default confidence" data-val="1">No idea</button>
+var play = document.querySelector("button[class='btn btn-default confidence']");
+<button type="submit" class="btn btn-primary smoothasfk submitQuizBtn" style="padding: 12px 26px;">Submit</button>
+//<button type="button" data-challengerskipto="0" class="btn btn-default playbtn">Continue -&gt;</button>
+
+<div aria-label="Playbar" aria-orientation="horizontal" aria-valuemax="126.967" aria-valuemin="0" aria-valuenow="96.802486" aria-valuetext="1:37" role="slider" tabindex="0" style="cursor: pointer; flex: 1 1 0%; height: 33px; outline: none; margin-left: 14.4281px; margin-right: 9.61875px; position: relative;"><canvas height="41" width="537" style="height: 33px; left: -14.4281px; position: absolute; top: 0px; width: 429.958px;"></canvas><div style="border-radius: 50%; height: 10.773px; left: 304.089px; opacity: 0; position: absolute; top: 11.1135px; width: 10.773px;"></div><div class="w-storyboard-anchor" style="height: 0px; left: 0px; position: absolute; top: 0px; width: 100%;"><div class="w-storyboard" style="bottom: 0px; height: 81.3885px; left: 76.3402px; opacity: 0; overflow: hidden; pointer-events: none; position: absolute; transition: opacity 150ms ease 0s, transform 1000ms cubic-bezier(0, 0.8, 0, 1) 0s; transform: scale(0.83); transform-origin: center bottom; width: 144.05px;"><img src="https://embed-ssl.wistia.com/deliveries/6d5f85a5b135ab593a46e7ac0fec1f961a414b41.bin" class="w-css-reset-max-width-none-important" alt="" style="height: 1627.77px; left: -432.151px; position: absolute; top: -569.719px; vertical-align: top; width: 1440.5px;"><div class="w-storyboard-time" style="bottom: 0.5em; color: rgb(255, 255, 255); display: inline-block; font-family: WistiaPlayerInterNumbersSemiBold, Helvetica, sans-serif; font-size: 12.5044px; left: 0px; line-height: 32.7037px; position: absolute; text-align: center; width: 100%;"><span style="background: rgba(0, 0, 0, 0.7); border-radius: 2.88563px; display: inline-block; line-height: 1em; padding: 5.77125px;">0:46</span></div></div></div></div>
+<button type="button" class="btn btn-primary btn-lg beginButton">Begin?</button>
+
+Wistia.plugin("endsend", function(video) {
+    if (!Date.now) {
+        Date.now = function() {
+            return new Date().getTime();
+        }
+        ;
+    }
+    video.bind("end", function() {
+        console.log("Video has been watched.");
+        var user = video.options.user;
+        var module = video.options.module;
+        var currentLesson = video.options.currentLesson;
+        var nextLesson = currentLesson + 1;
+        var timeonlesson = (Date.now() - $("#videoStartTime").val()) / 1000;
+        var isExamHowTo = $("#isExamHowTo").val();
+        var percentW = video.percentWatched();
+        var urlSearchParams = new URLSearchParams(location.search);
+        var urlSearchParamsHasExperimentVariables = urlSearchParams.has("experiment_group_id") && urlSearchParams.has("current_activity_number");
+        var experimentParams = urlSearchParamsHasExperimentVariables ? {
+            experimentGroupId: urlSearchParams.get("experiment_group_id"),
+            currentActivityNumber: urlSearchParams.get("current_activity_number"),
+        } : {};
+        $.ajax({
+            url: "/wistiaToServer.php",
+            type: "POST",
+            data: {
+                ended: "1",
+                user: user,
+                module: module,
+                currentLesson: currentLesson,
+                timeonlesson: timeonlesson,
+                percentW: percentW,
+                ...experimentParams,
+            },
+            cache: false,
+            dataType: "json",
+            success: function(data) {
+                if (data["status"] == "success") {
+                    updateXP();
+                    console.log("Progress updated successfully.");
+                    window.onbeforeunload = function() {}
+                    ;
+                    var nextLesson = data["nextLesson"];
+                    if (isExamHowTo != 1) {
+                        var redirect1 = window.setTimeout(function() {
+                            window.location.href = nextLesson;
+                        }, 5000);
+                    }
+                    var divWidth = video.width();
+                    var divHeight = video.height();
+                    $("#goToNextLesson").attr("href", nextLesson);
+                    overlay = $("#continueToNextLessonOverlay").css({
+                        width: divWidth,
+                        height: divHeight
+                    }).fadeIn();
+                    $(video.grid.top_inside).append(overlay);
+                    var counter = 0;
+                    var timer = setInterval(function() {
+                        if (counter < 98) {
+                            counter = counter + 2;
+                            $("#div_loading_progress").removeClass("p" + (counter - 2)).addClass("p" + counter);
+                            $("#span_progress").html(5 - Math.floor(counter / 20));
+                        } else {
+                            $("#div_loading_progress").removeClass("p98").addClass("p100");
+                            $("#span_progress").html('<i class="fa fa-step-forward"></i>');
+                            clearInterval(timer);
+                        }
+                    }, 100);
+                    if (isExamHowTo == 1) {
+                        $("#div_loading_progress").removeClass("p98").addClass("p100");
+                        $("#span_progress").html('<i class="fa fa-step-forward"></i>');
+                        clearInterval(timer);
+                        $("#continueText").text("Review your work and the mark scheme below before continuing!");
+                    }
+                    $("#cancelBtn").on("click", function() {
+                        $(this).html("");
+                        $("#div_loading_progress").addClass("p0");
+                        $("#span_progress").html('<i class="fa fa-step-forward"></i>');
+                        clearInterval(timer);
+                        clearTimeout(redirect1);
+                    });
+                } else {
+                    console.log("Did not update progress.");
+                    window.onbeforeunload = function() {}
+                    ;
+                    console.log(data["desc"]);
+                }
+            },
+            error: function() {
+                console.log("Timed out.");
+            },
+        });
+    });
+});
